@@ -1,0 +1,58 @@
+package dev.vagvolgyi.smartledclock.display;
+
+import dev.vagvolgyi.rgbmatrix.wrapper.BdfFont;
+import dev.vagvolgyi.smartledclock.display.render.Renderer;
+import dev.vagvolgyi.smartledclock.util.FontCache;
+
+import java.awt.*;
+import java.time.LocalTime;
+
+import static java.awt.Color.BLUE;
+import static java.awt.Color.RED;
+import static java.time.format.DateTimeFormatter.ofPattern;
+
+public class DigitalTimeDisplay implements Display {
+    private static final BdfFont largeFont = FontCache.getFont("8x13.bdf");
+    private static final BdfFont smallFont = FontCache.getFont("4x6.bdf");
+
+    private final Renderer renderer;
+
+    public DigitalTimeDisplay(Renderer renderer) {
+        this.renderer = renderer;
+    }
+
+    @Override
+    public void renderContent() {
+        LocalTime currentTime = LocalTime.now();
+
+        drawTime(currentTime);
+        drawSecondsMeter(currentTime);
+        drawTimeSeparators(currentTime);
+    }
+
+    private void drawTime(LocalTime currentTime) {
+        renderer.drawText(largeFont, new Point(0, 0), RED, currentTime.format(ofPattern("HH")));
+        renderer.drawText(largeFont, new Point(17, 0), RED, currentTime.format(ofPattern("mm")));
+        renderer.drawText(smallFont, new Point(35, 0), RED, currentTime.format(ofPattern("ss")));
+    }
+
+    private void drawSecondsMeter(LocalTime currentTime) {
+        int lineLength = Math.round((float)40 / (float) 59 * currentTime.getSecond());
+        if(lineLength > 0) {
+            Point meterStart = new Point(0, -12);
+            Point meterEnd = new Point(meterStart);
+            meterEnd.translate(lineLength - 1, 0);
+            renderer.drawLine(meterStart, meterEnd, BLUE);
+        }
+    }
+
+    private void drawTimeSeparators(LocalTime currentTime) {
+        if(currentTime.getNano() / 1000000 < 500) {
+            renderer.drawPixel(new Point(16, - 7), RED);
+            renderer.drawPixel(new Point(16, - 3), RED);
+
+            renderer.drawPixel(new Point(33, - 4), RED);
+            renderer.drawPixel(new Point(33, - 2), RED);
+        }
+    }
+}
