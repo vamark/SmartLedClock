@@ -9,6 +9,7 @@ import java.time.LocalTime;
 
 import static java.awt.Color.BLUE;
 import static java.awt.Color.RED;
+import static java.lang.Math.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class DigitalTimeDisplay implements Display {
@@ -37,9 +38,9 @@ public class DigitalTimeDisplay implements Display {
     }
 
     private void drawSecondsMeter(LocalTime currentTime) {
-        int lineLength = Math.round((float)40 / (float) 59 * currentTime.getSecond());
+        int lineLength = Math.round((float)40 / 59 * currentTime.getSecond());
         if(lineLength > 0) {
-            Point meterStart = new Point(0, -12);
+            Point meterStart = new Point(1, -12);
             Point meterEnd = new Point(meterStart);
             meterEnd.translate(lineLength - 1, 0);
             renderer.drawLine(meterStart, meterEnd, BLUE);
@@ -47,12 +48,14 @@ public class DigitalTimeDisplay implements Display {
     }
 
     private void drawTimeSeparators(LocalTime currentTime) {
-        if(currentTime.getNano() / 1000000 < 500) {
-            renderer.drawPixel(new Point(16, - 7), RED);
-            renderer.drawPixel(new Point(16, - 3), RED);
+        int centiSeconds = currentTime.getNano() / 100_000_000;
+        int red = (int)round((double)255 / 2 * (1 + cos(2 * PI / 10 * centiSeconds)));
+        Color separatorColor = new Color(red, 0, 0);
 
-            renderer.drawPixel(new Point(33, - 4), RED);
-            renderer.drawPixel(new Point(33, - 2), RED);
-        }
+        renderer.drawPixel(new Point(16, -7), separatorColor);
+        renderer.drawPixel(new Point(16, -3), separatorColor);
+
+        renderer.drawPixel(new Point(33, -4), separatorColor);
+        renderer.drawPixel(new Point(33, -2), separatorColor);
     }
 }
