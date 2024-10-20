@@ -7,6 +7,7 @@ import dev.vagvolgyi.smartledclock.display.render.FullscreenRenderer;
 import dev.vagvolgyi.smartledclock.display.render.LocalizedRenderer;
 
 import java.awt.*;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -19,10 +20,10 @@ public class Main {
         CountDownLatch latch = new CountDownLatch(1);
         Runtime.getRuntime().addShutdownHook(new Thread(latch::countDown));
 
-        try(ScheduledExecutorService renderExecutorService = Executors.newSingleThreadScheduledExecutor();
-            FullscreenRenderer renderer = new FullscreenRenderer()) {
-            Runnable renderTask = createRenderTask(renderer);
+        try(FullscreenRenderer renderer = new FullscreenRenderer();
+            ScheduledExecutorService renderExecutorService = Executors.newSingleThreadScheduledExecutor()) {
 
+            Runnable renderTask = createRenderTask(renderer);
             renderExecutorService.scheduleWithFixedDelay(renderTask, 0, 100, MILLISECONDS);
 
             latch.await();
@@ -34,8 +35,23 @@ public class Main {
                                          new DateDisplay(new LocalizedRenderer(renderer, new Point(0, 64))));
 
         return () -> {
+            renderer.setBrightness(getBrightness());
             displays.forEach(Display::renderContent);
             renderer.commit();
         };
+    }
+
+    private static int getBrightness() {
+        int hour = LocalTime.now().getHour();
+
+        if(hour < 8) {
+            return 1;
+        }
+        else if(hour < 17) {
+            return 60;
+        }
+        else {
+            return 30;
+        }
     }
 }
