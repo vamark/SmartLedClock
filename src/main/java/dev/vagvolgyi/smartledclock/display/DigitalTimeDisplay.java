@@ -12,14 +12,12 @@ import static java.awt.Color.RED;
 import static java.lang.Math.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
-public class DigitalTimeDisplay implements Display {
+public class DigitalTimeDisplay extends Display {
     private static final BdfFont largeFont = FontCache.getFont("8x13.bdf");
     private static final BdfFont smallFont = FontCache.getFont("4x6.bdf");
 
-    private final Renderer renderer;
-
     public DigitalTimeDisplay(Renderer renderer) {
-        this.renderer = renderer;
+        super(renderer);
     }
 
     @Override
