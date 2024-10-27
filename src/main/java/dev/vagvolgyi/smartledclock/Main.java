@@ -1,10 +1,7 @@
 package dev.vagvolgyi.smartledclock;
 
-import dev.vagvolgyi.smartledclock.background.NetatmoWeather;
-import dev.vagvolgyi.smartledclock.display.DateDisplay;
-import dev.vagvolgyi.smartledclock.display.DigitalTimeDisplay;
-import dev.vagvolgyi.smartledclock.display.Display;
-import dev.vagvolgyi.smartledclock.display.TemperatureDisplay;
+import dev.vagvolgyi.smartledclock.background.weather.NetatmoWeather;
+import dev.vagvolgyi.smartledclock.display.*;
 import dev.vagvolgyi.smartledclock.display.render.FullscreenRenderer;
 import dev.vagvolgyi.smartledclock.display.render.LocalizedRenderer;
 
@@ -41,8 +38,10 @@ public class Main {
         List<Display> displays = List.of(
                 new DigitalTimeDisplay(new LocalizedRenderer(renderer, new Point(22, 64))),
                 new DateDisplay(new LocalizedRenderer(renderer, new Point(0, 64))),
-                new TemperatureDisplay(new LocalizedRenderer(renderer, new Point(0, 10)), netatmoWeather::getOutdoorTemp),
-                new TemperatureDisplay(new LocalizedRenderer(renderer, new Point(0, 23)), netatmoWeather::getIndoorTemp)
+                new TemperatureDisplay(new LocalizedRenderer(renderer, new Point(0, 9)), netatmoWeather::getOutdoorTemp, netatmoWeather::getOutdoorTempTrend),
+                new HumidityDisplay(new LocalizedRenderer(renderer, new Point(45, 9)), netatmoWeather::getOutdoorHumidity),
+                new TemperatureDisplay(new LocalizedRenderer(renderer, new Point(0, 20)), netatmoWeather::getIndoorTemp, netatmoWeather::getIndoorTempTrend),
+                new HumidityDisplay(new LocalizedRenderer(renderer, new Point(45, 20)), netatmoWeather::getIndoorHumidity)
         );
 
         return () -> {

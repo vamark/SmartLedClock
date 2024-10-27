@@ -1,4 +1,4 @@
-package dev.vagvolgyi.smartledclock.background;
+package dev.vagvolgyi.smartledclock.background.weather;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,7 +23,12 @@ public class NetatmoWeather implements Runnable {
     private static final Preferences modulePreferences = Preferences.userRoot().node("SmartLedClock/modules/NetatmoWeather");
 
     private Float indoorTemp;
+    private Trend indoorTempTrend;
+    private Short indoorHumidity;
+
     private Float outdoorTemp;
+    private Trend outdoorTempTrend;
+    private Short outdoorHumidity;
 
     @Override
     public void run() {
@@ -34,15 +39,30 @@ public class NetatmoWeather implements Runnable {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Failed to refresh weather data", e);
         }
-
     }
 
     public Float getIndoorTemp() {
         return indoorTemp;
     }
 
+    public Trend getIndoorTempTrend() {
+        return indoorTempTrend;
+    }
+
+    public Short getIndoorHumidity() {
+        return indoorHumidity;
+    }
+
     public Float getOutdoorTemp() {
         return outdoorTemp;
+    }
+
+    public Trend getOutdoorTempTrend() {
+        return outdoorTempTrend;
+    }
+
+    public Short getOutdoorHumidity() {
+        return outdoorHumidity;
     }
 
     private void refreshWeatherData() throws IOException, InterruptedException {
@@ -66,7 +86,12 @@ public class NetatmoWeather implements Runnable {
                 JsonObject moduleData = modules.getAsJsonObject("dashboard_data");
 
                 indoorTemp = dashboardData.get("Temperature").getAsFloat();
+                indoorTempTrend = Trend.fromString(dashboardData.get("temp_trend").getAsString());
+                indoorHumidity = dashboardData.get("Humidity").getAsShort();
+
                 outdoorTemp = moduleData.get("Temperature").getAsFloat();
+                outdoorTempTrend = Trend.fromString(moduleData.get("temp_trend").getAsString());
+                outdoorHumidity = moduleData.get("Humidity").getAsShort();
             }
             else {
                 throw new IllegalStateException("Failed to refresh weather data: " + response.body());
